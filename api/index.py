@@ -8,6 +8,15 @@ import os
 
 app = FastAPI(title="API Predictor Saber 11 y Saber Pro")
 
+# --- 2. CONFIGURAR CORS (AÑADE ESTO) ---
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],      # Permite que cualquier sitio web acceda
+    allow_credentials=True,
+    allow_methods=["*"],      # Permite todos los métodos (GET, POST, etc.)
+    allow_headers=["*"],      # Permite todos los encabezados
+)
+
 # --- CARGA DE MODELOS CON RUTA DINÁMICA ---
 # Obtenemos la ruta de la carpeta raíz (un nivel arriba de /api)
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
