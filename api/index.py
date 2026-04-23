@@ -160,7 +160,7 @@ class DatosSaberPro(BaseModel):
 
 # --- ENDPOINTS ---
 
-@app.post("/predict/saber11")
+@app.post("/api/predict/saber11")
 def predict_s11(data: DatosSaber11):
     try:
         df = pd.DataFrame([data.model_dump()])
@@ -177,7 +177,7 @@ def predict_s11(data: DatosSaber11):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/predict/saberpro")
+@app.post("/api/predict/saberpro")
 def predict_spro(data: DatosSaberPro):
     try:
         # 1. Convertimos los datos a DataFrame
