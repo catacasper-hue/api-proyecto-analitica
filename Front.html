@@ -375,7 +375,7 @@
             console.log("Enviando a API:", finalPayload); // Para que veas en la consola (F12) qué se envía
 
             try {
-                const response = await fetch(`${BASE_URL}/predict/${state.exam}`, {
+                const response = await fetch(`/api/predict/${state.exam}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
