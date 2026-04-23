@@ -1,7 +1,11 @@
 {
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/",
+      "destination": "/Front.html"
+    },
+    {
+      "source": "/predict/(.*)",
       "destination": "/api/index.py"
     }
   ]
