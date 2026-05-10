@@ -1,0 +1,105 @@
+
+{ "sABER 11": "Saber 11",
+  "cole_caracter": "ACADÉMICO",
+  "cole_depto_ubicacion": "BOGOTÁ",
+  "cole_mcpio_ubicacion": "BOGOTÁ D.C.",
+  "cole_jornada": "UNICA",
+  "cole_naturaleza": "OFICIAL",
+
+  "estu_genero_saber11": "F",
+  "edad_saber11": 17,
+  "estu_depto_reside": "BOGOTÁ",
+  "estu_mcpio_reside": "BOGOTÁ D.C.",
+  "estu_dedicacioninternet": "Entre 1 y 3 horas",
+  "estu_dedicacionlecturadiaria": "Entre 30 y 60 minutos",
+
+  "fami_estratovivienda_saber11": "Estrato 3",
+  "fami_personashogar": "3 a 4",
+  "fami_educacionmadre_saber11": "Educación profesional completa",
+  "fami_educacionpadre_saber11": "Secundaria (Bachillerato) completa",
+  "fami_situacioneconomica": "Igual",
+
+  "fami_comecarnepescadohuevo": "3 a 5 veces por semana",
+
+  "estu_inse_individual_saber11": "Medio",
+  "estu_nse_ies": "3",
+  "estu_nse_establecimiento": "NSE3",
+  "estu_nse_individual_saber11": "NSE3",
+
+  "fami_comecerealfrutoslegumbre": "3 a 5 veces por semana",
+  "fami_comelechederivados": "3 a 5 veces por semana",
+  "fami_cuartoshogar": "Tres",
+  "fami_numlibros": "26 A 100 LIBROS",
+
+  "estu_generacione": "NO",
+
+  "estu_depto_presentacion_saber11": "BOGOTÁ",
+  "estu_mcpio_presentacion_saber11": "BOGOTÁ D.C.",
+
+  "fami_tieneautomovil_saber11": "No",
+  "fami_tienecomputador_saber11": "Si",
+  "fami_tieneconsolavideojuegos_saber11": "No",
+  "fami_tienehornomicroogas_saber11": "Si",
+  "fami_tienemotocicleta_saber11": "Si",
+
+  "fami_ocupacionmadre": "Empleado de nivel técnico o profesional",
+  "fami_ocupacionpadre": "Empleado de nivel auxiliar o administrativo",
+  "fami_trabajolabormadre_saber11": "Trabaja como profesional (por ejemplo médico, abogado, ingeniero)",
+  "fami_trabajolaborpadre_saber11": "Tiene un trabajo de tipo auxiliar administrativo (por ejemplo, secretario o asistente)"
+}
+
+# Saber Pro
+{
+  "estu_genero_saberpro": "F",
+  "edad_saberpro": 22,
+  "estu_semestrecursa": "08",   
+  "estu_horassemanatrabaja_saberpro": "Entre 11 y 20 horas",
+  "inst_caracter_academico": "UNIVERSIDAD",
+  "inst_origen": "NO OFICIAL - FUNDACIÓN",
+  "estu_inst_departamento": "BOGOTÁ",
+  "estu_inst_municipio": "BOGOTÁ D.C.",
+
+  "fami_estratovivienda_saberpro": "Estrato 3",
+  "fami_educacionmadre_saberpro": "Educación profesional completa",
+  "fami_educacionpadre_saberpro": "Secundaria (Bachillerato) completa",
+  "estu_pagomatriculabeca": "No",
+  "estu_pagomatriculacredito": "No",
+  "fami_tieneserviciotv_saberpro": "Si",
+  "estu_dedicacioninternet": "Más de 3 horas",
+  "estu_dedicacionlecturadiaria": "Más de 2 horas",
+
+  "punt_global_saber11": 310,
+  "edad_saber11": 17,
+  "nivel_saber11": "Alto",
+
+  "cole_caracter": "ACADÉMICO",
+  "cole_jornada": "UNICA",
+  "cole_naturaleza": "OFICIAL",
+  "cole_depto_ubicacion": "BOGOTÁ",
+  "cole_mcpio_ubicacion": "BOGOTÁ D.C.",
+  "estu_genero_saber11": "F",
+  "estu_depto_presentacion_saber11": "BOGOTÁ",
+  "estu_mcpio_presentacion_saber11": "BOGOTÁ D.C.",
+  "estu_generacione": "NO",
+  "estu_depto_reside": "BOGOTÁ",
+  "estu_mcpio_reside": "BOGOTÁ D.C.",
+  "estu_tituloobtenidobachiller": "Bachiller académico",
+
+  "punt_matematicas": 68,
+  "punt_lectura_critica": 72,
+  "punt_c_naturales": 65,
+  "punt_sociales_ciudadanas": 63,
+  "punt_ingles": 70,
+  "fami_comecarnepescadohuevo": "3 a 5 veces por semana",
+
+  "fami_estratovivienda_saber11": "Estrato 3",
+  "fami_personashogar": "3 a 4",
+  "fami_situacioneconomica": "Igual",
+  "fami_educacionmadre_saber11": "Educación profesional completa",
+  "fami_educacionpadre_saber11": "Secundaria (Bachillerato) completa",
+  "estu_prgm_academico": "INGENIERIA DE SISTEMAS",
+  "estu_depto_presentacion_saberpro": "BOGOTÁ",
+  "estu_mcpio_presentacion_saberpro": "BOGOTÁ D.C.",
+  "estu_pagomatriculapadres": "No",
+  "estu_pagomatriculapropio": "No"
+}
