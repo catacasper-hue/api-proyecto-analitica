@@ -19,11 +19,17 @@ from cuml_pickle_compat import install as install_cuml_pickle_compat
 
 warnings.filterwarnings("ignore")
 
-app = Flask(__name__, template_folder="templates", static_folder="static")
+BASE_DIR = Path(__file__).resolve().parent
+
+app = Flask(
+    __name__,
+    template_folder=str(BASE_DIR / "templates"),
+    static_folder=str(BASE_DIR / "static"),
+)
 CORS(app)
 
 # Configuración
-UPLOAD_FOLDER = "uploads"
+UPLOAD_FOLDER = str(BASE_DIR / "uploads")
 ALLOWED_EXTENSIONS = {"csv", "xlsx", "xls"}
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 

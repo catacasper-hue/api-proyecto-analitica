@@ -18,7 +18,9 @@ RUN pip install --upgrade pip \
 
 COPY . .
 
-RUN mkdir -p uploads \
+RUN test -f templates/index.html \
+    && test -d static \
+    && mkdir -p uploads \
     && useradd --create-home --shell /usr/sbin/nologin appuser \
     && chown -R appuser:appuser /app
 
