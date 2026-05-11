@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduPredictor.ai - Predictor de Rendimiento Académico</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="app" class="app-container">
+        <!-- Loader -->
+        <div id="loader" class="loader hidden">
+            <div class="spinner"></div>
+            <p>Procesando predicción...</p>
+        </div>
+
+        <!-- Home Screen -->
+        <div id="home-screen" class="screen active">
+            <div class="header">
+                <div class="logo-section">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h1>EduPredictor.ai</h1>
+                </div>
+                <h2 class="subtitle">Predictor de Rendimiento Académico</h2>
+                <p class="description">Herramienta avanzada de analítica predictiva para estudiantes e instituciones colombianas.</p>
+            </div>
+
+            <div class="cards-container">
+                <div class="card clickable" onclick="navigateTo('institutional-exam')">
+                    <div class="card-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <h3>Uso Institucional</h3>
+                    <p>Carga archivos masivos y analiza el riesgo de deserción y rendimiento de cohortes.</p>
+                    <div class="card-action">
+                        <span>Comenzar análisis →</span>
+                    </div>
+                </div>
+
+                <div class="card clickable" onclick="navigateTo('individual-exam')">
+                    <div class="card-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h3>Uso Individual</h3>
+                    <p>Completa el cuestionario y obtén una predicción inmediata de tus resultados.</p>
+                    <div class="card-action">
+                        <span>Realizar test →</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Institutional Exam Selection -->
+        <div id="institutional-exam" class="screen">
+            <button class="back-btn" onclick="navigateTo('home-screen')">← Volver</button>
+            <div class="screen-header">
+                <h2>¿Qué examen deseas predecir?</h2>
+            </div>
+            <div class="exam-selection">
+                <div class="exam-card clickable" onclick="navigateTo('bulk-upload'); setExamType('saber11')">
+                    <h3>Saber 11</h3>
+                    <p>Bachillerato</p>
+                </div>
+                <div class="exam-card clickable" onclick="navigateTo('bulk-upload'); setExamType('saberpro')">
+                    <h3>Saber Pro</h3>
+                    <p>Universitario</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bulk Upload Screen -->
+        <div id="bulk-upload" class="screen">
+            <button class="back-btn" onclick="navigateTo('institutional-exam')">← Volver</button>
+            <div class="badge" id="exam-badge">SABER11</div>
+            <div class="screen-header">
+                <h2>Carga Masiva de Datos</h2>
+                <p>Arrastra tu archivo CSV para procesar múltiples estudiantes.</p>
+            </div>
+
+            <div class="form-container">
+                <div class="upload-area" id="uploadArea" role="button" tabindex="0" onclick="openFileDialog()" onkeydown="handleUploadAreaKeydown(event)" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                    <i class="fas fa-file-csv"></i>
+                    <p class="upload-main">Seleccionar archivo .csv</p>
+                    <p class="upload-sub">o arrastra el archivo aquí</p>
+                    <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" onchange="handleFileSelect(event)" hidden>
+                </div>
+
+                <button class="btn-secondary" onclick="downloadTemplate()">
+                    <i class="fas fa-download"></i> Descargar Plantilla
+                </button>
+
+                <div class="template-section">
+                    <h3>Columnas Requeridas</h3>
+                    <div class="template-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nombre_Estudiante</th>
+                                    <th>Estrato</th>
+                                    <th>Educacion_Madre</th>
+                                    <th>Educacion_Padre</th>
+                                    <th>Internet</th>
+                                    <th>Consumo_Proteina</th>
+                                    <th>Edad</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Juan Pérez</td>
+                                    <td>2</td>
+                                    <td>Secundaria</td>
+                                    <td>Primaria</td>
+                                    <td>Sí</td>
+                                    <td>Diariamente</td>
+                                    <td>17</td>
+                                </tr>
+                                <tr>
+                                    <td>Maria Lopez</td>
+                                    <td>3</td>
+                                    <td>Universitaria</td>
+                                    <td>Secundaria</td>
+                                    <td>Sí</td>
+                                    <td>Regularmente</td>
+                                    <td>17</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="fileInfo" class="file-info hidden">
+                    <p>Archivo seleccionado: <strong id="fileName"></strong></p>
+                    <button class="btn-primary" onclick="uploadFile()">
+                        <i class="fas fa-upload"></i> Procesar Archivo
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bulk Results Screen -->
+        <div id="bulk-results" class="screen">
+            <button class="back-btn" onclick="navigateTo('bulk-upload')">← Volver</button>
+            <div class="badge" id="results-badge">SABER11</div>
+            <div class="screen-header">
+                <h2>Resultados de Predicción</h2>
+                <p id="results-summary">Análisis procesado</p>
+            </div>
+
+            <div class="results-table-container">
+                <table id="resultsTable" class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Nombre del Estudiante</th>
+                            <th>Puntaje Predicho</th>
+                            <th>Riesgo</th>
+                            <th>Desempeño Esperado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsList">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn-secondary" onclick="exportResults()">
+                    <i class="fas fa-download"></i> Exportar Resultados
+                </button>
+                <button class="btn-primary" onclick="navigateTo('bulk-upload')">
+                    <i class="fas fa-redo"></i> Nueva Carga
+                </button>
+            </div>
+        </div>
+
+        <!-- Individual Exam Selection -->
+        <div id="individual-exam" class="screen">
+            <button class="back-btn" onclick="navigateTo('home-screen')">← Volver</button>
+            <div class="screen-header">
+                <h2>¿Qué examen deseas predecir?</h2>
+                <p>Selecciona el tipo de examen para personalizar tu predicción</p>
+            </div>
+            <div class="exam-selection">
+                <div class="exam-card clickable" onclick="navigateTo('saber11-form'); setExamType('saber11')">
+                    <div class="exam-icon">
+                        <i class="fas fa-school"></i>
+                    </div>
+                    <h3>Saber 11</h3>
+                    <p>Bachillerato</p>
+                    <small>Prueba para estudiantes de último grado de educación media</small>
+                </div>
+                <div class="exam-card clickable" onclick="navigateTo('saberpro-form'); setExamType('saberpro')">
+                    <div class="exam-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h3>Saber Pro</h3>
+                    <p>Universitario</p>
+                    <small>Prueba para estudiantes de educación superior</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Saber 11 Form -->
+        <div id="saber11-form" class="screen">
+            <button class="back-btn" onclick="navigateTo('individual-exam')">← Volver</button>
+            <div class="badge">SABER11</div>
+            <div class="screen-header">
+                <h2>Cuestionario de Predicción Individual</h2>
+                <p>Completa este formulario con tus datos reales y familiares para obtener una predicción personalizada y precisa de tu desempeño académico.</p>
+            </div>
+
+            <form id="saber11FormElement" class="form">
+                <div class="form-section">
+                    <h3><i class="fas fa-school"></i> Datos del colegio</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Carácter</label>
+                            <select name="cole_caracter" required>
+                                <option value="">Seleccione...</option>
+                                <option value="ACADÉMICO">Académico</option>
+                                <option value="TÉCNICO">Técnico</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Departamento</label>
+                            <select name="cole_depto_ubicacion" class="depto-select" data-target="cole_mcpio_ubicacion" required>
+                                <option value="">Seleccione...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Municipio</label>
+                            <select name="cole_mcpio_ubicacion" required>
+                                <option value="">Seleccione Departamento primero</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Jornada</label>
+                            <select name="cole_jornada" required>
+                                <option value="">Seleccione...</option>
+                                <option value="MAÑANA">Mañana</option>
+                                <option value="TARDE">Tarde</option>
+                                <option value="COMPLETA">Completa</option>
+                                <option value="UNICA">Única</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Naturaleza</label>
+                            <select name="cole_naturaleza" required>
+                                <option value="">Seleccione...</option>
+                                <option value="OFICIAL">Oficial</option>
+                                <option value="NO OFICIAL">No Oficial</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3><i class="fas fa-user-graduate"></i> Datos personales</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Género</label>
+                            <select name="estu_genero_saber11" required>
+                                <option value="M">Masculino</option>
+                                <option value="F">Femenino</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Edad</label>
+                            <input type="number" name="edad_saber11" min="14" max="25" value="17" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Departamento Residencia</label>
+                            <select name="estu_depto_reside" class="depto-select" data-target="estu_mcpio_reside" required>
+                                <option value="">Seleccione...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Municipio Residencia</label>
+                            <select name="estu_mcpio_reside" required>
+                                <option value="">Seleccione Departamento primero</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Dedicación Internet</label>
+                            <select name="estu_dedicacioninternet" required>
+                                <option value="Más de 3 horas">Más de 3 horas</option>
+                                <option value="Entre 1 y 3 horas">Entre 1 y 3 horas</option>
+                                <option value="30 minutos o menos">30 minutos o menos</option>
+                                <option value="No Navega Internet">No navega</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Dedicación Lectura</label>
+                            <select name="estu_dedicacionlecturadiaria" required>
+                                <option value="Más de 2 horas">Más de 2 horas</option>
+                                <option value="Entre 1 y 2 horas">Entre 1 y 2 horas</option>
+                                <option value="Entre 30 y 60 minutos">Entre 30 y 60 minutos</option>
+                                <option value="30 minutos o menos">30 minutos o menos</option>
+                                <option value="No leo por entretenimiento">No leo</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3><i class="fas fa-users"></i> Información del hogar</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Estrato Vivienda</label>
+                            <select name="fami_estratovivienda_saber11" required>
+                                <option value="Estrato 1">1</option>
+                                <option value="Estrato 2">2</option>
+                                <option value="Estrato 3">3</option>
+                                <option value="Estrato 4">4</option>
+                                <option value="Estrato 5">5</option>
+                                <option value="Estrato 6">6</option>
+                                <option value="Sin Estrato">Sin Estrato</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Personas Hogar</label>
+                            <select name="fami_personashogar" required>
+                                <option value="3 a 4">3 a 4</option>
+                                <option value="1 a 2">1 a 2</option>
+                                <option value="5 a 6">5 a 6</option>
+                                <option value="7 a 8">7 a 8</option>
+                                <option value="9 o más">9 o más</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Educación Madre</label>
+                            <select name="fami_educacionmadre_saber11" required>
+                                <option value="Postgrado">Postgrado</option>
+                                <option value="Educación profesional completa">Profesional completa</option>
+                                <option value="Técnica o tecnológica completa">Técnica completa</option>
+                                <option value="Secundaria (Bachillerato) completa">Secundaria completa</option>
+                                <option value="Primaria completa">Primaria completa</option>
+                                <option value="Ninguno">Ninguno</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Educación Padre</label>
+                            <select name="fami_educacionpadre_saber11" required>
+                                <option value="Postgrado">Postgrado</option>
+                                <option value="Educación profesional completa">Profesional completa</option>
+                                <option value="Técnica o tecnológica completa">Técnica completa</option>
+                                <option value="Secundaria (Bachillerato) completa">Secundaria completa</option>
+                                <option value="Primaria completa">Primaria completa</option>
+                                <option value="Ninguno">Ninguno</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Situación Económica</label>
+                            <select name="fami_situacioneconomica" required>
+                                <option value="Igual">Igual</option>
+                                <option value="Mejor">Mejor</option>
+                                <option value="Peor">Peor</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3><i class="fas fa-chart-line"></i> Hábitos</h3>
+                    <p>Estos datos ayudan a mejorar la precisión de la predicción. Ingresa tus hábitos reales.</p>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Consumo de proteina</label>
+                            <select name="fami_comecarnepescadohuevo" required>
+                                <option value="">Seleccione...</option>
+                                <option value="Todos o casi todos los días">Todos o casi todos los días</option>
+                                <option value="3 a 5 veces por semana">3 a 5 veces por semana</option>
+                                <option value="1 o 2 veces por semana">1 o 2 veces por semana</option>
+                                <option value="Nunca o rara vez comemos eso">Nunca o rara vez</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3><i class="fas fa-sliders"></i> Variables adicionales para la predicción</h3>
+                    <p>Completa estas variables para que el modelo tenga en cuenta más información real sobre tu contexto y hogar.</p>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>INSE individual <span class="tooltip-icon" tabindex="0" title="INSE es el Indice Socioeconomico Individual. Resume condiciones del hogar y del estudiante usadas por ICFES para contextualizar el desempeno."><i class="fas fa-circle-question"></i></span></label>
+                            <select name="estu_inse_individual_saber11" required>
+                                <option value="">Seleccione...</option>
+                                <option value="Muy bajo">Muy bajo</option>
+                                <option value="Bajo">Bajo</option>
+                                <option value="Medio">Medio</option>
+                                <option value="Alto">Alto</option>
+                                <option value="Muy alto">Muy alto</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>NSE institucional <span class="tooltip-icon" tabindex="0" title="NSE es el Nivel Socioeconomico asociado al contexto de la institucion educativa."><i class="fas fa-circle-question"></i></span></label>
+                            <select name="estu_nse_ies" required>
+                                <option value="">Seleccione...</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>NSE del establecimiento <span class="tooltip-icon" tabindex="0" title="NSE es el Nivel Socioeconomico. Este campo clasifica el contexto socioeconomico del colegio o establecimiento educativo."><i class="fas fa-circle-question"></i></span></label>
+                            <select name="estu_nse_establecimiento" required>
+                                <option value="">Seleccione...</option>
+                                <option value="NSE1">NSE1</option>
+                                <option value="NSE2">NSE2</option>
+                                <option value="NSE3">NSE3</option>
+                                <option value="NSE4">NSE4</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>NSE individual <span class="tooltip-icon" tabindex="0" title="NSE es el Nivel Socioeconomico individual del estudiante, usado para contextualizar condiciones del hogar."><i class="fas fa-circle-question"></i></span></label>
+                            <select name="estu_nse_individual_saber11" required>
+                                <option value="">Seleccione...</option>
+                                <option value="NSE1">NSE1</option>
+                                <option value="NSE2">NSE2</option>
+                                <option value="NSE3">NSE3</option>
+                                <option value="NSE4">NSE4</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Consumo de cereales y legumbres</label>
+                            <select name="fami_comecerealfrutoslegumbre" required>
+                                <option value="">Seleccione...</option>
+                                <option value="Nunca o rara vez comemos eso">Nunca o rara vez</option>
+                                <option value="1 o 2 veces por semana">1 o 2 veces por semana</option>
+                                <option value="3 a 5 veces por semana">3 a 5 veces por semana</option>
+                                <option value="Todos o casi todos los días">Todos o casi todos los días</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Consumo de leche y derivados</label>
+                            <select name="fami_comelechederivados" required>
+                                <option value="">Seleccione...</option>
+                                <option value="Nunca o rara vez comemos eso">Nunca o rara vez</option>
+                                <option value="1 o 2 veces por semana">1 o 2 veces por semana</option>
+                                <option value="3 a 5 veces por semana">3 a 5 veces por semana</option>
+                                <option value="Todos o casi todos los días">Todos o casi todos los días</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Cuartos del hogar</label>
+                            <select name="fami_cuartoshogar" required>
+                                <option value="">Seleccione...</option>
+                                <option value="Uno">Uno</option>
+                                <option value="Dos">Dos</option>
+                                <option value="Tres">Tres</option>
+                                <option value="Cuatro">Cuatro</option>
+                                <option value="Cinco">Cinco</option>
+                                <option value="Seis o mas">Seis o mas</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Numero de libros</label>
+                            <select name="fami_numlibros" required>
+                                <option value="">Seleccione...</option>
+                                <option value="0 A 10 LIBROS">0 a 10 libros</option>
+                                <option value="11 A 25 LIBROS">11 a 25 libros</option>
+                                <option value="26 A 100 LIBROS">26 a 100 libros</option>
+                                <option value="MÁS DE 100 LIBROS">Más de 100 libros</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>¿Eres beneficiario de Generación E?</label>
+                            <select name="estu_generacione" required>
+                                <option value="">Seleccione...</option>
+                                <option value="NO">No</option>
+                                <option value="GENERACION E - GRATUIDAD">Sí</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Departamento donde presentaste el examen</label>
+                            <select name="estu_depto_presentacion_saber11" class="depto-select" data-target="estu_mcpio_presentacion_saber11" required>
+                                <option value="">Seleccione...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Municipio donde presentaste el examen</label>
+                            <select name="estu_mcpio_presentacion_saber11" required>
+                                <option value="">Seleccione Departamento primero</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>¿Tienen automóvil en el hogar?</label>
+                            <select name="fami_tieneautomovil_saber11" required>
+                                <option value="">Seleccione...</option>
+                                <option value="Si">Sí</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>¿Tienen computador en el hogar?</label>
+                            <select name="fami_tienecomputador_saber11" required>
+                                <option value="">Seleccione...</option>
+                                <option value="Si">Sí</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>¿Tienen consola de videojuegos?</label>
+                            <select name="fami_tieneconsolavideojuegos_saber11" required>
+                                <option value="">Seleccione...</option>
+                                <option value="Si">Sí</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>¿Tienen microondas u horno a gas?</label>
+                            <select name="fami_tienehornomicroogas_saber11" required>
+                                <option value="">Seleccione...</option>
+                                <option value="Si">Sí</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>¿Tienen motocicleta?</label>
+                            <select name="fami_tienemotocicleta_saber11" required>
+                                <option value="">Seleccione...</option>
+                                <option value="Si">Sí</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Ocupación de la madre</label>
+                            <select name="fami_ocupacionmadre" required>
+                                <option value="">Seleccione...</option>
+                                <option value="Profesional Independiente">Profesional independiente</option>
+                                <option value="Empleado de nivel técnico o profesional">Empleado técnico o profesional</option>
+                                <option value="Empleado de nivel auxiliar o administrativo">Empleado auxiliar o administrativo</option>
+                                <option value="Trabajador por cuenta propia">Trabajador por cuenta propia</option>
+                                <option value="Hogar">Trabajo en el hogar</option>
+                                <option value="Otra actividad u ocupación">Otra actividad</option>
+                                <option value="Pensionado">Pensionado</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Ocupación del padre</label>
+                            <select name="fami_ocupacionpadre" required>
+                                <option value="">Seleccione...</option>
+                                <option value="Profesional independiente">Profesional independiente</option>
+                                <option value="Empleado de nivel técnico o profesional">Empleado técnico o profesional</option>
+                                <option value="Empleado de nivel auxiliar o administrativo">Empleado auxiliar o administrativo</option>
+                                <option value="Trabajador por cuenta propia">Trabajador por cuenta propia</option>
+                                <option value="Hogar">Trabajo en el hogar</option>
+                                <option value="Otra actividad u ocupación">Otra actividad</option>
+                                <option value="Pensionado">Pensionado</option>
+                            </select>
+                        </div>
+                        <input type="hidden" name="fami_trabajolabormadre_saber11">
+                        <input type="hidden" name="fami_trabajolaborpadre_saber11">
+                    </div>
+                </div>
+
+                <button type="button" class="btn-primary btn-large" onclick="submitForm('saber11')">
+                    <i class="fas fa-sparkles"></i> Generar Predicción Completa
+                </button>
+            </form>
+        </div>
+
+        <!-- SaberPro Form -->
+        <div id="saberpro-form" class="screen">
+            <button class="back-btn" onclick="navigateTo('individual-exam')">← Volver</button>
+            <div class="badge">SABERPRO</div>
+            <div class="screen-header">
+                <h2>Cuestionario Completo Saber Pro</h2>
+                <p>Información universitaria y socioeconómica detallada.</p>
+            </div>
+
+            <form id="saberproFormElement" class="form">
+                <div class="form-section">
+                    <h3><i class="fas fa-university"></i> Información Universitaria</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Género</label>
+                            <select name="estu_genero_saberpro" required>
+                                <option value="M">Masculino</option>
+                                <option value="F">Femenino</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Edad Saber Pro</label>
+                            <input type="number" name="edad_saberpro" min="16" max="100" value="21" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Semestre Cursa</label>
+                            <select name="estu_semestrecursa" required>
+                                <option value="01">01</option>
+                                <option value="02">02</option>
+                                <option value="03">03</option>
+                                <option value="04">04</option>
+                                <option value="05">05</option>
+                                <option value="06" selected>06</option>
+                                <option value="07">07</option>
+                                <option value="08">08</option>
+                                <option value="09">09</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12 o más">12 o más</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Horas Trabajo Semanal</label>
+                            <select name="estu_horassemanatrabaja_saberpro" required>
+                                <option value="0">0</option>
+                                <option value="Menos de 10 horas">Menos de 10 horas</option>
+                                <option value="Entre 11 y 20 horas">Entre 11 y 20 horas</option>
+                                <option value="Entre 21 y 30 horas">Entre 21 y 30 horas</option>
+                                <option value="Más de 30 horas">Más de 30 horas</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Carácter Institución</label>
+                            <select name="inst_caracter_academico" required>
+                                <option value="UNIVERSIDAD">Universidad</option>
+                                <option value="INSTITUCIÓN UNIVERSITARIA">Institución Universitaria</option>
+                                <option value="INSTITUCIÓN TECNOLÓGICA">Institución Tecnológica</option>
+                                <option value="TÉCNICA PROFESIONAL">Técnica Profesional</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Origen Institución</label>
+                            <select name="inst_origen" required>
+                                <option value="NO OFICIAL - FUNDACIÓN">No Oficial (Privada)</option>
+                                <option value="OFICIAL DEPARTAMENTAL">Oficial Departamental</option>
+                                <option value="OFICIAL NACIONAL">Oficial Nacional</option>
+                                <option value="OFICIAL MUNICIPAL">Oficial Municipal</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Departamento IES</label>
+                            <select name="estu_inst_departamento" class="depto-select" data-target="estu_inst_municipio" required>
+                                <option value="">Seleccione...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Municipio IES</label>
+                            <select name="estu_inst_municipio" required>
+                                <option value="">Seleccione Departamento primero</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3><i class="fas fa-users"></i> Información Socioeconómica (Pro)</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Estrato Vivienda</label>
+                            <select name="fami_estratovivienda_saberpro" required>
+                                <option value="Estrato 1">1</option>
+                                <option value="Estrato 2">2</option>
+                                <option value="Estrato 3" selected>3</option>
+                                <option value="Estrato 4">4</option>
+                                <option value="Estrato 5">5</option>
+                                <option value="Estrato 6">6</option>
+                                <option value="Sin Estrato">Sin Estrato</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Educación Madre</label>
+                            <select name="fami_educacionmadre_saberpro" required>
+                                <option value="Postgrado">Postgrado</option>
+                                <option value="Educación profesional completa">Profesional completa</option>
+                                <option value="Técnica o tecnológica completa">Técnica completa</option>
+                                <option value="Secundaria (Bachillerato) completa">Secundaria completa</option>
+                                <option value="Primaria completa">Primaria completa</option>
+                                <option value="Ninguno">Ninguno</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Educación Padre</label>
+                            <select name="fami_educacionpadre_saberpro" required>
+                                <option value="Postgrado">Postgrado</option>
+                                <option value="Educación profesional completa">Profesional completa</option>
+                                <option value="Técnica o tecnológica completa">Técnica completa</option>
+                                <option value="Secundaria (Bachillerato) completa">Secundaria completa</option>
+                                <option value="Primaria completa">Primaria completa</option>
+                                <option value="Ninguno">Ninguno</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>¿Paga matrícula con beca?</label>
+                            <select name="estu_pagomatriculabeca" required>
+                                <option value="No">No</option>
+                                <option value="Si">Sí</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>¿Paga matrícula con crédito?</label>
+                            <select name="estu_pagomatriculacredito" required>
+                                <option value="No">No</option>
+                                <option value="Si">Sí</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>¿Tiene servicio de TV?</label>
+                            <select name="fami_tieneserviciotv_saberpro" required>
+                                <option value="Si">Sí</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Dedicación Internet</label>
+                            <select name="estu_dedicacioninternet" required>
+                                <option value="Más de 3 horas">Más de 3 horas</option>
+                                <option value="Entre 1 y 3 horas">Entre 1 y 3 horas</option>
+                                <option value="30 minutos o menos">30 minutos o menos</option>
+                                <option value="No Navega Internet">No navega</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Dedicación Lectura</label>
+                            <select name="estu_dedicacionlecturadiaria" required>
+                                <option value="Más de 2 horas">Más de 2 horas</option>
+                                <option value="Entre 1 y 2 horas">Entre 1 y 2 horas</option>
+                                <option value="Entre 30 y 60 minutos">Entre 30 y 60 minutos</option>
+                                <option value="30 minutos o menos">30 minutos o menos</option>
+                                <option value="No leo por entretenimiento">No leo</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3><i class="fas fa-history"></i> Antecedentes Saber 11</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Puntaje Global Saber 11</label>
+                            <input type="number" name="punt_global_saber11" id="punt_global_saber11" min="0" max="500" value="300" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Edad en Saber 11</label>
+                            <input type="number" name="edad_saber11" min="14" max="30" value="17" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Nivel Saber 11 (Auto)</label>
+                            <select name="nivel_saber11" id="nivel_saber11" required readonly>
+                                <option value="Excelente">Excelente</option>
+                                <option value="Alto">Alto</option>
+                                <option value="Regular" selected>Regular</option>
+                                <option value="Bajo">Bajo</option>
+                                <option value="Deficiente">Deficiente</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hidden fields with defaults for Saber Pro to satisfy full schema -->
+                <input type="hidden" name="estu_prgm_academico" value="INGENIERIA DE SISTEMAS">
+                <input type="hidden" name="estu_nucleo_pregrado" value="INGENIERIA DE SISTEMAS">
+                <input type="hidden" name="cole_caracter" value="ACADÉMICO">
+                <input type="hidden" name="cole_depto_ubicacion" value="BOGOTA">
+                <input type="hidden" name="cole_jornada" value="MAÑANA">
+                <input type="hidden" name="cole_mcpio_ubicacion" value="BOGOTA D.C.">
+                <input type="hidden" name="cole_naturaleza" value="NO OFICIAL">
+                <input type="hidden" name="desemp_c_naturales" value="3">
+                <input type="hidden" name="desemp_ingles" value="B1">
+                <input type="hidden" name="desemp_lectura_critica" value="3">
+                <input type="hidden" name="desemp_matematicas" value="3">
+                <input type="hidden" name="desemp_sociales_ciudadanas" value="3">
+                <input type="hidden" name="estu_depto_presentacion_saber11" value="BOGOTA">
+                <input type="hidden" name="estu_depto_reside" value="BOGOTA">
+                <input type="hidden" name="estu_generacione" value="NO">
+                <input type="hidden" name="estu_genero_saber11" value="M">
+                <input type="hidden" name="estu_inse_individual_saber11" value="55.5">
+                <input type="hidden" name="estu_mcpio_presentacion_saber11" value="BOGOTA D.C.">
+                <input type="hidden" name="estu_mcpio_reside" value="BOGOTA D.C.">
+                <input type="hidden" name="estu_nse_establecimiento" value="NSE3">
+                <input type="hidden" name="estu_nse_individual_saber11" value="NSE3">
+                <input type="hidden" name="fami_comecarnepescadohuevo" value="Todos o casi todos los días">
+                <input type="hidden" name="fami_comecerealfrutoslegumbre" value="Todos o casi todos los días">
+                <input type="hidden" name="fami_comelechederivados" value="Todos o casi todos los días">
+                <input type="hidden" name="fami_cuartoshogar" value="Tres">
+                <input type="hidden" name="fami_educacionmadre_saber11" value="Educación profesional completa">
+                <input type="hidden" name="fami_educacionpadre_saber11" value="Educación profesional completa">
+                <input type="hidden" name="fami_estratovivienda_saber11" value="Estrato 3">
+                <input type="hidden" name="fami_numlibros" value="26 A 100 LIBROS">
+                <input type="hidden" name="fami_personashogar" value="3 a 4">
+                <input type="hidden" name="fami_situacioneconomica" value="Igual">
+                <input type="hidden" name="fami_tieneautomovil_saber11" value="Si">
+                <input type="hidden" name="fami_tienecomputador_saber11" value="Si">
+                <input type="hidden" name="fami_tieneconsolavideojuegos_saber11" value="Si">
+                <input type="hidden" name="fami_tienehornomicroogas_saber11" value="Si">
+                <input type="hidden" name="fami_tienemotocicleta_saber11" value="No">
+                <input type="hidden" name="fami_trabajolabormadre_saber11" value="Trabaja como profesional (por ejemplo médico, abogado, ingeniero)">
+                <input type="hidden" name="fami_trabajolaborpadre_saber11" value="Trabaja como profesional (por ejemplo médico, abogado, ingeniero)">
+                <input type="hidden" name="percentil_c_naturales" value="65.0">
+                <input type="hidden" name="percentil_global_saber11" value="70.0">
+                <input type="hidden" name="percentil_ingles" value="75.0">
+                <input type="hidden" name="percentil_lectura_critica" value="60.0">
+                <input type="hidden" name="percentil_matematicas" value="80.0">
+                <input type="hidden" name="percentil_sociales_ciudadanas" value="55.0">
+                <input type="hidden" name="punt_c_naturales" value="60.0">
+                <input type="hidden" name="punt_ingles" value="65.0">
+                <input type="hidden" name="punt_lectura_critica" value="62.0">
+                <input type="hidden" name="punt_matematicas" value="70.0">
+                <input type="hidden" name="punt_sociales_ciudadanas" value="58.0">
+                <input type="hidden" name="periodo" value="20242">
+                <input type="hidden" name="estu_depto_presentacion_saberpro" value="BOGOTA">
+                <input type="hidden" name="estu_inse_individual_saberpro" value="60.5">
+                <input type="hidden" name="estu_mcpio_presentacion_saberpro" value="BOGOTA D.C.">
+                <input type="hidden" name="estu_nse_ies" value="3">
+                <input type="hidden" name="estu_nse_individual_saberpro" value="NSE3">
+                <input type="hidden" name="estu_pagomatriculapadres" value="No">
+                <input type="hidden" name="estu_pagomatriculapropio" value="No">
+                <input type="hidden" name="estu_prgm_departamento" value="BOGOTA">
+                <input type="hidden" name="estu_prgm_municipio" value="BOGOTA D.C.">
+                <input type="hidden" name="estu_tituloobtenidobachiller" value="Bachiller académico">
+                <input type="hidden" name="fami_ocupacionmadre" value="Profesional Independiente">
+                <input type="hidden" name="fami_ocupacionpadre" value="Profesional independiente">
+                <input type="hidden" name="fami_tieneautomovil_saberpro" value="Si">
+                <input type="hidden" name="fami_tienehornomicroogas_saberpro" value="Si">
+                <input type="hidden" name="fami_tienemotocicleta_saberpro" value="No">
+                <input type="hidden" name="fami_trabajolabormadre_saberpro" value="Trabaja como profesional (por ejemplo médico, abogado, ingeniero)">
+                <input type="hidden" name="fami_trabajolaborpadre_saberpro" value="Trabaja como profesional (por ejemplo médico, abogado, ingeniero)">
+
+                <div class="form-section">
+                    <h3><i class="fas fa-school"></i> Completa con tus datos reales de Saber 11</h3>
+                    <p>Ingresa la informacion real que tenias cuando presentaste Saber 11. Estos datos permiten que la prediccion de Saber Pro sea mas personalizada y precisa.</p>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Carácter del colegio</label>
+                            <select name="cole_caracter" required>
+                                <option value="">Seleccione...</option>
+                                <option value="ACADÉMICO">Académico</option>
+                                <option value="TÉCNICO">Técnico</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Jornada del colegio</label>
+                            <select name="cole_jornada" required>
+                                <option value="">Seleccione...</option>
+                                <option value="MAÑANA">Mañana</option>
+                                <option value="TARDE">Tarde</option>
+                                <option value="COMPLETA">Completa</option>
+                                <option value="UNICA">Única</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Naturaleza del colegio</label>
+                            <select name="cole_naturaleza" required>
+                                <option value="">Seleccione...</option>
+                                <option value="OFICIAL">Oficial</option>
+                                <option value="NO OFICIAL">No Oficial</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Departamento del colegio</label>
+                            <select name="cole_depto_ubicacion" class="depto-select" data-target="cole_mcpio_ubicacion" required>
+                                <option value="">Seleccione...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Municipio del colegio</label>
+                            <select name="cole_mcpio_ubicacion" required>
+                                <option value="">Seleccione Departamento primero</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Género en Saber 11</label>
+                            <select name="estu_genero_saber11" required>
+                                <option value="M">Masculino</option>
+                                <option value="F">Femenino</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Departamento de presentación Saber 11</label>
+                            <select name="estu_depto_presentacion_saber11" class="depto-select" data-target="estu_mcpio_presentacion_saber11" required>
+                                <option value="">Seleccione...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Municipio de presentación Saber 11</label>
+                            <select name="estu_mcpio_presentacion_saber11" required>
+                                <option value="">Seleccione Departamento primero</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>¿Beneficiario de Generación E?</label>
+                            <select name="estu_generacione" required>
+                                <option value="NO">No</option>
+                                <option value="GENERACION E - GRATUIDAD">Sí</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Departamento de residencia en Saber 11</label>
+                            <select name="estu_depto_reside" class="depto-select" data-target="estu_mcpio_reside" required>
+                                <option value="">Seleccione...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Municipio de residencia en Saber 11</label>
+                            <select name="estu_mcpio_reside" required>
+                                <option value="">Seleccione Departamento primero</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Título obtenido al graduarte</label>
+                            <input type="text" name="estu_tituloobtenidobachiller" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3><i class="fas fa-clipboard-check"></i> Puntajes reales</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Puntaje Matemáticas</label>
+                            <input type="number" name="punt_matematicas" min="0" max="100" step="0.1" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Puntaje Lectura Crítica</label>
+                            <input type="number" name="punt_lectura_critica" min="0" max="100" step="0.1" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Puntaje Ciencias Naturales</label>
+                            <input type="number" name="punt_c_naturales" min="0" max="100" step="0.1" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Puntaje Sociales y Ciudadanas</label>
+                            <input type="number" name="punt_sociales_ciudadanas" min="0" max="100" step="0.1" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Puntaje Inglés</label>
+                            <input type="number" name="punt_ingles" min="0" max="100" step="0.1" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Consumo de proteína durante Saber 11</label>
+                            <select name="fami_comecarnepescadohuevo" required>
+                                <option value="">Seleccione...</option>
+                                <option value="Todos o casi todos los días">Todos o casi todos los días</option>
+                                <option value="3 a 5 veces por semana">3 a 5 veces por semana</option>
+                                <option value="1 o 2 veces por semana">1 o 2 veces por semana</option>
+                                <option value="Nunca o rara vez comemos eso">Nunca o rara vez</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3><i class="fas fa-home"></i> Hogar y programa académico</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Estrato en Saber 11</label>
+                            <select name="fami_estratovivienda_saber11" required>
+                                <option value="Estrato 1">1</option>
+                                <option value="Estrato 2">2</option>
+                                <option value="Estrato 3">3</option>
+                                <option value="Estrato 4">4</option>
+                                <option value="Estrato 5">5</option>
+                                <option value="Estrato 6">6</option>
+                                <option value="Sin Estrato">Sin Estrato</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Personas en el hogar</label>
+                            <select name="fami_personashogar" required>
+                                <option value="1 a 2">1 a 2</option>
+                                <option value="3 a 4">3 a 4</option>
+                                <option value="5 a 6">5 a 6</option>
+                                <option value="7 a 8">7 a 8</option>
+                                <option value="9 o más">9 o más</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Situación económica en Saber 11</label>
+                            <select name="fami_situacioneconomica" required>
+                                <option value="Igual">Igual</option>
+                                <option value="Mejor">Mejor</option>
+                                <option value="Peor">Peor</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Educación de la madre en Saber 11</label>
+                            <select name="fami_educacionmadre_saber11" required>
+                                <option value="Postgrado">Postgrado</option>
+                                <option value="Educación profesional completa">Profesional completa</option>
+                                <option value="Técnica o tecnológica completa">Técnica completa</option>
+                                <option value="Secundaria (Bachillerato) completa">Secundaria completa</option>
+                                <option value="Primaria completa">Primaria completa</option>
+                                <option value="Ninguno">Ninguno</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Educación del padre en Saber 11</label>
+                            <select name="fami_educacionpadre_saber11" required>
+                                <option value="Postgrado">Postgrado</option>
+                                <option value="Educación profesional completa">Profesional completa</option>
+                                <option value="Técnica o tecnológica completa">Técnica completa</option>
+                                <option value="Secundaria (Bachillerato) completa">Secundaria completa</option>
+                                <option value="Primaria completa">Primaria completa</option>
+                                <option value="Ninguno">Ninguno</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Programa académico</label>
+                            <input type="text" name="estu_prgm_academico" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Departamento de presentación Saber Pro</label>
+                            <select name="estu_depto_presentacion_saberpro" class="depto-select" data-target="estu_mcpio_presentacion_saberpro" required>
+                                <option value="">Seleccione...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Municipio de presentación Saber Pro</label>
+                            <select name="estu_mcpio_presentacion_saberpro" required>
+                                <option value="">Seleccione Departamento primero</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>¿La matrícula la pagan tus padres?</label>
+                            <select name="estu_pagomatriculapadres" required>
+                                <option value="No">No</option>
+                                <option value="Si">Sí</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>¿La matrícula la pagas tú?</label>
+                            <select name="estu_pagomatriculapropio" required>
+                                <option value="No">No</option>
+                                <option value="Si">Sí</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-primary btn-large" onclick="submitForm('saberpro')">
+                    <i class="fas fa-sparkles"></i> Generar Predicción Completa
+                </button>
+            </form>
+        </div>
+
+        <!-- Prediction Result Screen -->
+        <div id="prediction-result" class="screen">
+            <button class="back-btn" onclick="goBack()">← Volver</button>
+            <div class="badge" id="result-badge">SABER11</div>
+            <div class="result-container">
+                <h2>Tu Predicción</h2>
+                
+                <div class="result-card">
+                    <div class="score-display">
+                        <p class="score-label">Tu puntaje estimado es:</p>
+                        <div class="score-value" id="scoreValue">420</div>
+                        <p class="performance-text" id="performanceText">Desempeño Académico Promedio</p>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-icon risk">
+                                <i class="fas fa-exclamation-circle"></i>
+                            </div>
+                            <div class="metric-info">
+                                <p class="metric-label">Riesgo</p>
+                                <p class="metric-value" id="riskValue">BAJO</p>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-icon percentile">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <div class="metric-info">
+                                <p class="metric-label">Percentil Predicho</p>
+                                <p class="metric-value" id="percentileValue">65%</p>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <div class="interpretation-box">
+                        <p id="interpretationText"></p>
+                    </div>
+
+                    <div class="auto-summary hidden" id="autoSummaryBox">
+                        <!-- Supuestos automáticos eliminados -->
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn-secondary" onclick="navigateTo('individual-exam')">
+                        <i class="fas fa-redo"></i> Volver a Predicción
+                    </button>
+                    <button class="btn-primary" onclick="downloadReport()">
+                        <i class="fas fa-download"></i> Descargar Reporte
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.referencePayload = {{ reference_payload|tojson }};
+        window.modelSchemaPayload = {{ model_schema_payload|tojson }};
+    </script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
